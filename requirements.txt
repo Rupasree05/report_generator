@@ -3,3 +3,4 @@ speechrecognition
 groq
 python-dotenv
 reportlab
+python-pptx
