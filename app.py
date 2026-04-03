@@ -71,6 +71,11 @@ font-size:16px;">
 </button>
 """
 
+# ---------- SESSION ----------
+if "topic" not in st.session_state:
+    st.session_state.topic = ""
+
+# ---------- VOICE INPUT ----------
 voice_html = """
 <button onclick="startDictation()" style="
 padding:10px 20px;
@@ -87,16 +92,29 @@ font-size:16px;">
 <script>
 function startDictation() {
 
+    if (!('webkitSpeechRecognition' in window)) {
+        document.getElementById("output").innerHTML = "❌ Use Chrome browser";
+        return;
+    }
+
     var recognition = new webkitSpeechRecognition();
     recognition.lang = "en-US";
+
+    recognition.onstart = function() {
+        document.getElementById("output").innerHTML = "🎤 Listening...";
+    };
 
     recognition.onresult = function(event) {
         var text = event.results[0][0].transcript;
 
         document.getElementById("output").innerHTML = "✅ " + text;
 
-        // Copy text automatically
+        // copy to clipboard
         navigator.clipboard.writeText(text);
+    };
+
+    recognition.onerror = function(event) {
+        document.getElementById("output").innerHTML = "❌ Error: " + event.error;
     };
 
     recognition.start();
@@ -105,6 +123,17 @@ function startDictation() {
 """
 
 components.html(voice_html, height=120)
+
+# ---------- INPUT ----------
+topic = st.text_input(
+    "Enter your topic:",
+    value=st.session_state.topic,
+    key="topic_input"
+)
+
+# ---------- USE VOICE BUTTON ----------
+if st.button("Use Voice Input"):
+    st.session_state.topic = topic  # user pastes here
 
 
 # ---------- INPUT BOX ----------
