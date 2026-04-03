@@ -28,30 +28,21 @@ st.markdown("""
 
 # ---------- TITLE ----------
 st.markdown('<div class="big-title">🤖 Autonomous Report Generator</div>', unsafe_allow_html=True)
-
 st.markdown("### Enter your topic")
 
 # ---------- SESSION ----------
 if "topic" not in st.session_state:
     st.session_state.topic = ""
 
-# ---------- INPUT ----------
-topic = st.text_input("", value=st.session_state.topic, key="topic_input")
-
-# ---------- VOICE INPUT (REAL MIC) ----------
+# ---------- VOICE INPUT ----------
 voice_html = """
-<button onclick="startDictation()" style="
-padding:10px 20px;
-border-radius:10px;
-border:1px solid #ccc;
-background-color:#111827;
-color:white;
-font-size:16px;">
-🎤 Voice Input
-</button>
-
 <script>
 function startDictation() {
+
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Voice not supported. Use Chrome.");
+        return;
+    }
 
     var recognition = new webkitSpeechRecognition();
     recognition.lang = "en-US";
@@ -68,14 +59,30 @@ function startDictation() {
     recognition.start();
 }
 </script>
+
+<button onclick="startDictation()" style="
+padding:10px 20px;
+border-radius:10px;
+border:1px solid #ccc;
+background:#111827;
+color:white;
+font-size:16px;">
+🎤 Voice Input
+</button>
 """
 
 spoken_text = components.html(voice_html, height=80)
 
-# ---------- UPDATE INPUT FROM VOICE ----------
+# ---------- UPDATE INPUT ----------
 if spoken_text:
-    topic = spoken_text
-    st.session_state.topic = topic
+    st.session_state.topic = spoken_text
+
+# ---------- INPUT BOX ----------
+topic = st.text_input(
+    "",
+    value=st.session_state.topic,
+    key="topic_input"
+)
 
 # ---------- PDF ----------
 def create_pdf(data, topic):
