@@ -25,17 +25,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------- VOICE INPUT ----------
-def get_voice_input():
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.info("🎤 Speak now...")
-        audio = r.listen(source)
+import streamlit as st
 
-    try:
-        return r.recognize_google(audio)
-    except:
-        st.error("Voice not recognized")
-        return ""
+st.title("AI Report Generator")
+
+topic = st.text_input("Enter your topic:")
+
+if st.button("Generate Report"):
+    if topic:
+        st.write("Generating report for:", topic)
+        data = generate_dashboard(topic)
+        st.write(data)
 
 # ---------- PDF ----------
 def create_pdf(data, topic):
