@@ -135,7 +135,7 @@ if "topic" not in st.session_state:
 topic = st.text_input("Enter your topic", value=st.session_state.topic)
 
 if st.button("🎤 Voice Input"):
-    st.session_state.topic = get_voice_input()
+    topic = st.text_input("Enter your topic:")
 
 # ---------- GENERATE ----------
 if st.button("Generate Report", key="generate_btn"):
