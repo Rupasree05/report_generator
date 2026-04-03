@@ -71,7 +71,40 @@ font-size:16px;">
 </button>
 """
 
-spoken_text = components.html(voice_html, height=80)
+voice_html = """
+<button onclick="startDictation()" style="
+padding:10px 20px;
+border-radius:10px;
+border:1px solid #ccc;
+background:#111827;
+color:white;
+font-size:16px;">
+🎤 Voice Input
+</button>
+
+<p id="output"></p>
+
+<script>
+function startDictation() {
+
+    var recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+
+    recognition.onresult = function(event) {
+        var text = event.results[0][0].transcript;
+
+        document.getElementById("output").innerHTML = "✅ " + text;
+
+        // Copy text automatically
+        navigator.clipboard.writeText(text);
+    };
+
+    recognition.start();
+}
+</script>
+"""
+
+components.html(voice_html, height=120)
 
 # ---------- UPDATE INPUT ----------
 if spoken_text:
