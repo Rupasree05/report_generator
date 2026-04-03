@@ -34,48 +34,7 @@ st.markdown("### Enter your topic")
 if "topic" not in st.session_state:
     st.session_state.topic = ""
 
-# ---------- VOICE INPUT ----------
-voice_html = """
-<script>
-function startDictation() {
-
-    if (!('webkitSpeechRecognition' in window)) {
-        alert("Voice not supported. Use Chrome.");
-        return;
-    }
-
-    var recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-
-    recognition.onresult = function(event) {
-        var text = event.results[0][0].transcript;
-
-        window.parent.postMessage({
-            type: "streamlit:setComponentValue",
-            value: text
-        }, "*");
-    };
-
-    recognition.start();
-}
-</script>
-
-<button onclick="startDictation()" style="
-padding:10px 20px;
-border-radius:10px;
-border:1px solid #ccc;
-background:#111827;
-color:white;
-font-size:16px;">
-🎤 Voice Input
-</button>
-"""
-
-# ---------- SESSION ----------
-if "topic" not in st.session_state:
-    st.session_state.topic = ""
-
-# ---------- VOICE INPUT ----------
+# ---------- VOICE INPUT (STABLE VERSION) ----------
 voice_html = """
 <button onclick="startDictation()" style="
 padding:10px 20px;
@@ -106,10 +65,9 @@ function startDictation() {
 
     recognition.onresult = function(event) {
         var text = event.results[0][0].transcript;
-
         document.getElementById("output").innerHTML = "✅ " + text;
 
-        // copy to clipboard
+        // copy to clipboard automatically
         navigator.clipboard.writeText(text);
     };
 
@@ -131,17 +89,7 @@ topic = st.text_input(
     key="topic_input"
 )
 
-# ---------- USE VOICE BUTTON ----------
-if st.button("Use Voice Input"):
-    st.session_state.topic = topic  # user pastes here
-
-
-# ---------- INPUT BOX ----------
-topic = st.text_input(
-    "",
-    value=st.session_state.topic,
-    key="topic_input"
-)
+st.info("🎤 Click Voice Input → Speak → Paste here (Ctrl+V)")
 
 # ---------- PDF ----------
 def create_pdf(data, topic):
@@ -156,7 +104,6 @@ def create_pdf(data, topic):
     for i, section in enumerate(data, start=1):
         content.append(Paragraph(f"<b>{i}. {section['title']}</b>", styles["Heading2"]))
         content.append(Spacer(1, 10))
-
         content.append(Paragraph(section["content"], styles["Normal"]))
         content.append(Spacer(1, 10))
 
@@ -198,7 +145,6 @@ if st.button("Generate Report", key="generate_btn"):
 
     if topic:
         st.session_state.topic = topic
-
         data = generate_dashboard(topic)
 
         st.success("Report Generated!")
