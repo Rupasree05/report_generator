@@ -106,9 +106,6 @@ function startDictation() {
 
 components.html(voice_html, height=120)
 
-# ---------- UPDATE INPUT ----------
-if spoken_text:
-    st.session_state.topic = spoken_text
 
 # ---------- INPUT BOX ----------
 topic = st.text_input(
