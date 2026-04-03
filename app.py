@@ -7,53 +7,75 @@ from pptx import Presentation
 import io
 import matplotlib.pyplot as plt
 import re
-import whisper
-import tempfile
+import streamlit.components.v1 as components
 
 # ---------- CONFIG ----------
 st.set_page_config(page_title="AI Dashboard", layout="wide")
 
-# ---------- LOAD MODEL ----------
-model = whisper.load_model("base")
-
 # ---------- STYLE ----------
 st.markdown("""
 <style>
-.metric-card {
-    background-color: #111827;
-    padding: 15px;
-    border-radius: 10px;
-    text-align: center;
-    color: white;
+.big-title {
+    font-size: 40px;
+    font-weight: bold;
+}
+.stTextInput input {
+    height: 50px;
+    font-size: 18px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------- TITLE ----------
-st.title("🤖 Autonomous Report Generator")
+st.markdown('<div class="big-title">🤖 Autonomous Report Generator</div>', unsafe_allow_html=True)
+
+st.markdown("### Enter your topic")
+
+# ---------- SESSION ----------
+if "topic" not in st.session_state:
+    st.session_state.topic = ""
 
 # ---------- INPUT ----------
-topic = st.text_input("Enter your topic:", key="topic_input")
+topic = st.text_input("", value=st.session_state.topic, key="topic_input")
 
-# ---------- VOICE INPUT ----------
-st.markdown("### 🎤 Voice Input")
+# ---------- VOICE INPUT (REAL MIC) ----------
+voice_html = """
+<button onclick="startDictation()" style="
+padding:10px 20px;
+border-radius:10px;
+border:1px solid #ccc;
+background-color:#111827;
+color:white;
+font-size:16px;">
+🎤 Voice Input
+</button>
 
-audio_file = st.file_uploader("Upload audio (wav/mp3)", type=["wav", "mp3"])
+<script>
+function startDictation() {
 
-def transcribe_audio(audio_file):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-        tmp.write(audio_file.read())
-        tmp_path = tmp.name
+    var recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
 
-    result = model.transcribe(tmp_path)
-    return result["text"]
+    recognition.onresult = function(event) {
+        var text = event.results[0][0].transcript;
 
-if audio_file:
-    st.audio(audio_file)
+        window.parent.postMessage({
+            type: "streamlit:setComponentValue",
+            value: text
+        }, "*");
+    };
 
-    if st.button("Convert Voice to Text", key="voice_btn"):
-        topic = transcribe_audio(audio_file)
-        st.success(f"Recognized: {topic}")
+    recognition.start();
+}
+</script>
+"""
+
+spoken_text = components.html(voice_html, height=80)
+
+# ---------- UPDATE INPUT FROM VOICE ----------
+if spoken_text:
+    topic = spoken_text
+    st.session_state.topic = topic
 
 # ---------- PDF ----------
 def create_pdf(data, topic):
@@ -109,6 +131,8 @@ def create_ppt(data):
 if st.button("Generate Report", key="generate_btn"):
 
     if topic:
+        st.session_state.topic = topic
+
         data = generate_dashboard(topic)
 
         st.success("Report Generated!")
@@ -163,4 +187,4 @@ if st.button("Generate Report", key="generate_btn"):
             st.download_button("📊 Download PPT", ppt_file, file_name=ppt_name)
 
     else:
-        st.warning("Please enter or record a topic")
+        st.warning("Please speak or enter a topic")
