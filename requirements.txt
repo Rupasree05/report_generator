@@ -5,5 +5,3 @@ python-dotenv
 reportlab
 python-pptx
 matplotlib
-openai-whisper
-torch
