@@ -138,7 +138,7 @@ if st.button("🎤 Voice Input"):
     st.session_state.topic = get_voice_input()
 
 # ---------- GENERATE ----------
-if st.button("Generate Report"):
+if st.button("Generate Report", key="generate_btn"):
 
     if topic:
         data = generate_dashboard(topic)
